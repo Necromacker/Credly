@@ -35,7 +35,7 @@ async def keep_alive():
         await asyncio.sleep(600)  # every 10 minutes — not 30 seconds
         try:
             async with httpx.AsyncClient(timeout=10) as client:
-                await client.get("https://intelli-credit.onrender.com")
+                await client.get("https://credly-kvmu.onrender.com")
         except:
             pass
 
