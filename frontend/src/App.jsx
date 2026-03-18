@@ -13,7 +13,7 @@ const decisionColor = d =>
 const riskColor = r =>
   ({ LOW: "#10b981", MEDIUM: "#f59e0b", HIGH: "#ef4444", CRITICAL: "#b91c1c" }[r] || "#a1a1aa");
 
-/* ─── color palette (Investink inspired) ────────────────────── */
+/* ─── color palette ────────────────────── */
 const COLORS = {
   primary: "#ff69b4", // vibrant pink
   secondary: "#8b5cf6", // purple
@@ -30,13 +30,85 @@ const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body, #root { height: 100%; }
-  body { font-family: 'Inter', sans-serif; background: ${COLORS.bg}; color: ${COLORS.text}; overflow-x: hidden; }
+  body { font-family: 'Inter', sans-serif; background: ${COLORS.bg}; color: ${COLORS.text}; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
   input::placeholder { color: #a1a1aa; }
   input:focus { outline: none; }
   button { font-family: 'Inter', sans-serif; transition: all 0.2s ease; }
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+  /* Responsive Utilities */
+  .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  .grid { display: grid; gap: 24px; }
+  
+  .navbar-header {
+    padding: 20px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid ${COLORS.border};
+    transition: all 0.3s ease;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .logo-icon { 
+    width: 36px; height: 36px; background: ${COLORS.primary}; 
+    border-radius: 10px; display: flex; align-items: center; 
+    justify-content: center; color: #fff; font-weight: 900; font-size: 18px;
+  }
+  .logo-text { font-size: 22px; font-weight: 900; color: ${COLORS.text}; }
+  
+  .desktop-nav { display: flex; gap: 32px; align-items: center; }
+  .nav-item { font-weight: 700; cursor: pointer; color: ${COLORS.text}; transition: color 0.2s; font-size: 15px; }
+  .nav-item:hover, .nav-item.active { color: ${COLORS.primary}; }
+  
+  .mobile-toggle { display: none; }
+
+  @media (min-width: 1024px) {
+    .h1-text { font-size: 56px !important; }
+    .h2-text { font-size: 40px !important; }
+    .p-text { font-size: 18px !important; }
+    .hero-grid { grid-template-columns: 1.2fr 1fr; align-items: center; gap: 80px; }
+    .features-grid { grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    .dashboard-main-grid { grid-template-columns: 320px 1fr; }
+    .dashboard-stats-grid { grid-template-columns: repeat(3, 1fr); }
+    .dashboard-risk-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 1023px) {
+    .h1-text { font-size: 40px !important; }
+    .h2-text { font-size: 32px !important; }
+    .p-text { font-size: 16px !important; }
+    .hero-grid { grid-template-columns: 1fr; text-align: center; gap: 40px; }
+    .hero-content { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .hero-btns { justify-content: center; }
+    .features-grid { grid-template-columns: 1fr; gap: 20px; }
+    .dashboard-main-grid { grid-template-columns: 1fr; }
+    .dashboard-stats-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .dashboard-risk-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 850px) {
+    .desktop-nav { display: none; }
+    .mobile-toggle { 
+      display: flex; background: #fff; border: 1px solid ${COLORS.border};
+      border-radius: 50%; width: 48px; height: 48px; 
+      align-items: center; justify-content: center; cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05); z-index: 1100;
+    }
+    .navbar-header { padding: 16px 24px; }
+  }
+
+  @media (max-width: 480px) {
+    .h1-text { font-size: 32px !important; }
+    .h2-text { font-size: 26px !important; }
+    .hero-stats { flex-direction: column; gap: 20px !important; align-items: center; }
+  }
 `;
 
 /* ─── icons ──────────────────────────────────────────────────── */
@@ -160,58 +232,59 @@ function HomePage({ onStart }) {
   return (
     <div style={{ background: COLORS.bg, minHeight: "100vh" }}>
       {/* Hero Section */}
-      <section ref={heroRef} style={{ maxWidth: "1200px", margin: "0 auto", padding: "100px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "60px", alignItems: "center" }}>
-        <div>
+      <section ref={heroRef} className="container grid hero-grid" style={{ padding: "80px 24px" }}>
+        <div className="hero-content">
           <div style={{ display: "inline-block", background: "#fdf2f8", color: COLORS.primary, padding: "8px 16px", borderRadius: "100px", fontSize: "12px", fontWeight: "700", marginBottom: "24px" }}>
             Coming soon · Credly will have mobile app soon!
           </div>
-          <h1 style={{ fontSize: "64px", fontWeight: "900", lineHeight: 1.1, color: COLORS.text, marginBottom: "24px" }}>
+          <h1 className="h1-text" style={{ fontWeight: "900", lineHeight: 1.1, color: COLORS.text, marginBottom: "24px" }}>
             We're creating better way to <span style={{ color: COLORS.primary }}>invest for the future</span>
           </h1>
-          <p style={{ fontSize: "18px", color: COLORS.subtext, lineHeight: 1.6, marginBottom: "40px", maxWidth: "480px" }}>
+          <p className="p-text" style={{ color: COLORS.subtext, lineHeight: 1.6, marginBottom: "40px", maxWidth: "480px" }}>
             Intelligent management software to control future investment accounting. Every your funds are taken into account for need future.
           </p>
-          <div style={{ display: "flex", gap: "20px" }}>
+          <div className="hero-btns" style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
             <PrimaryBtn onClick={onStart} style={{ padding: "18px 40px" }}>Discover now</PrimaryBtn>
             <PrimaryBtn secondary onClick={onStart} style={{ border: "none" }}>Learn more →</PrimaryBtn>
           </div>
-          <div style={{ display: "flex", gap: "40px", marginTop: "60px" }}>
+          <div className="hero-stats" style={{ display: "flex", gap: "40px", marginTop: "60px" }}>
             <div>
-              <div style={{ fontSize: "32px", fontWeight: "900" }}>70B <span style={{ fontSize: "14px", color: COLORS.subtext, fontWeight: "500" }}>Llama 3 AI Engines</span></div>
+              <div style={{ fontSize: "24px", fontWeight: "900" }}>70B <span style={{ fontSize: "14px", color: COLORS.subtext, fontWeight: "500", display: "block" }}>Llama 3 AI Engines</span></div>
             </div>
             <div>
-              <div style={{ fontSize: "32px", fontWeight: "900" }}>100% <span style={{ fontSize: "14px", color: COLORS.subtext, fontWeight: "500" }}>Bank-Grade CAM Reports</span></div>
+              <div style={{ fontSize: "24px", fontWeight: "900" }}>100% <span style={{ fontSize: "14px", color: COLORS.subtext, fontWeight: "500", display: "block" }}>Bank-Grade CAM Reports</span></div>
             </div>
           </div>
         </div>
-        <div style={{ position: "relative" }}>
-          {/* Main illustration placeholder (Generated image would go here) */}
-          <div style={{ width: "100%", height: "500px", background: "linear-gradient(135deg, #fff, #fdf2f8)", borderRadius: "40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-             <img src="/1.png" alt="Illustration" style={{ width: "80%", height: "auto", borderRadius: "20px" }} />
+        <div style={{ position: "relative", width: "100%" }}>
+          <div style={{ width: "100%", height: "auto", minHeight: "350px", background: "linear-gradient(135deg, #fff, #fdf2f8)", borderRadius: "40px", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
+             <img src="/1.png" alt="Illustration" style={{ width: "100%", height: "auto", maxWidth: "500px", borderRadius: "20px" }} />
           </div>
         </div>
       </section>
 
       {/* Why Choose Us */}
-      <section style={{ textAlign: "center", padding: "100px 24px", background: "#fff" }}>
-        <h2 style={{ fontSize: "48px", fontWeight: "900", marginBottom: "16px" }}>Why should choose us</h2>
-        <p style={{ color: COLORS.subtext, marginBottom: "80px" }}>Because we always think of user needs and provide the best</p>
+      <section style={{ textAlign: "center", padding: "80px 24px", background: "#fff" }}>
+        <div className="container">
+          <h2 className="h2-text" style={{ fontWeight: "900", marginBottom: "16px" }}>Why should choose us</h2>
+          <p className="p-text" style={{ color: COLORS.subtext, marginBottom: "60px" }}>Because we always think of user needs and provide the best</p>
 
-        <div ref={whyRef} style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "40px" }}>
-          <div style={{ padding: "40px" }}>
-            <img src="/2.png" alt="AI" style={{ width: "120px", marginBottom: "32px" }} />
-            <h3 style={{ fontSize: "24px", fontWeight: "800", marginBottom: "16px" }}>AI Financial Parsing</h3>
-            <p style={{ color: COLORS.subtext, lineHeight: 1.6 }}>Leverage Llama 3 70B to instantly extract complex financial data from any PDF, digital or scanned.</p>
-          </div>
-          <div style={{ padding: "40px" }}>
-            <img src="/3.png" alt="Scoring" style={{ width: "120px", marginBottom: "32px" }} />
-            <h3 style={{ fontSize: "24px", fontWeight: "800", marginBottom: "16px" }}>5Cs Credit Scoring</h3>
-            <p style={{ color: COLORS.subtext, lineHeight: 1.6 }}>Comprehensive risk assessment across Character, Capacity, Capital, Collateral, and Conditions.</p>
-          </div>
-          <div style={{ padding: "40px" }}>
-            <img src="/4.png" alt="Intelligence" style={{ width: "120px", marginBottom: "32px" }} />
-            <h3 style={{ fontSize: "24px", fontWeight: "800", marginBottom: "16px" }}>Real-time Intelligence</h3>
-            <p style={{ color: COLORS.subtext, lineHeight: 1.6 }}>Live web research agent scans NCLT, court records, and news for high-speed background verification.</p>
+          <div ref={whyRef} className="grid features-grid">
+            <div style={{ padding: "40px", background: COLORS.bg, borderRadius: "24px" }}>
+              <img src="/2.png" alt="AI" style={{ width: "100px", marginBottom: "32px" }} />
+              <h3 style={{ fontSize: "22px", fontWeight: "800", marginBottom: "16px" }}>AI Financial Parsing</h3>
+              <p style={{ color: COLORS.subtext, lineHeight: 1.6, fontSize: "15px" }}>Leverage Llama 3 70B to instantly extract complex financial data from any PDF, digital or scanned.</p>
+            </div>
+            <div style={{ padding: "40px", background: COLORS.bg, borderRadius: "24px" }}>
+              <img src="/3.png" alt="Scoring" style={{ width: "100px", marginBottom: "32px" }} />
+              <h3 style={{ fontSize: "22px", fontWeight: "800", marginBottom: "16px" }}>5Cs Credit Scoring</h3>
+              <p style={{ color: COLORS.subtext, lineHeight: 1.6, fontSize: "15px" }}>Comprehensive risk assessment across Character, Capacity, Capital, Collateral, and Conditions.</p>
+            </div>
+            <div style={{ padding: "40px", background: COLORS.bg, borderRadius: "24px" }}>
+              <img src="/4.png" alt="Intelligence" style={{ width: "100px", marginBottom: "32px" }} />
+              <h3 style={{ fontSize: "22px", fontWeight: "800", marginBottom: "16px" }}>Real-time Intelligence</h3>
+              <p style={{ color: COLORS.subtext, lineHeight: 1.6, fontSize: "15px" }}>Live web research agent scans NCLT, court records, and news for high-speed background verification.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -243,7 +316,6 @@ function DashboardPage({ results, companyName, onGoAnalysis }) {
   const research = results.research;
   const fins = analyze?.financials || {};
 
-  /* Parse the research summary into structured sections */
   const parseSummary = (text) => {
     if (!text) return { riskLevel: "", findings: [], summary: "" };
     const riskMatch = text.match(/RISK LEVEL:\s*(\w+)/i);
@@ -262,16 +334,14 @@ function DashboardPage({ results, companyName, onGoAnalysis }) {
 
   return (
     <AnimatedPage>
-      {/* Row 1: Score + Financials */}
-      <div style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: "24px", marginBottom: "24px" }}>
-        {/* Score Card */}
-        <Card style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+      <div className="grid dashboard-main-grid" style={{ marginBottom: "24px" }}>
+        <Card style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "24px" }}>
           <div style={{ fontSize: "12px", fontWeight: "800", color: COLORS.subtext, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "20px" }}>Credit Quality</div>
-          <div style={{ fontSize: "72px", fontWeight: "900", lineHeight: 1, color: COLORS.text, letterSpacing: "-3px" }}>{score?.score ?? "—"}</div>
+          <div style={{ fontSize: "64px", fontWeight: "900", lineHeight: 1, color: COLORS.text, letterSpacing: "-3px" }}>{score?.score ?? "—"}</div>
           <div style={{ fontSize: "14px", color: COLORS.subtext, marginTop: "6px", marginBottom: "16px" }}>out of 100</div>
           {score && (
             <>
-              <div style={{ fontSize: "22px", fontWeight: "900", color: decisionColor(score.decision), marginBottom: "12px" }}>{score.decision}</div>
+              <div style={{ fontSize: "20px", fontWeight: "900", color: decisionColor(score.decision), marginBottom: "12px" }}>{score.decision}</div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "center" }}>
                 <div style={{ padding: "6px 14px", background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: "8px", fontSize: "12px", fontWeight: "700" }}>Grade: {score.grade}</div>
                 <div style={{ padding: "6px 14px", background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: "8px", fontSize: "12px", fontWeight: "700" }}>{score.interest_rate}</div>
@@ -283,13 +353,12 @@ function DashboardPage({ results, companyName, onGoAnalysis }) {
           )}
         </Card>
 
-        {/* Financial Highlights */}
         <Card>
-          <h3 style={{ fontSize: "18px", fontWeight: "800", marginBottom: "24px", display: "flex", alignItems: "center", gap: "10px" }}>
+          <h3 style={{ fontSize: "18px", fontWeight: "800", marginBottom: "24px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
             <Icons.Analysis /> Financial Highlights
             {companyName && <span style={{ marginLeft: "auto", fontSize: "13px", color: COLORS.subtext, fontWeight: "600", padding: "4px 12px", background: COLORS.bg, borderRadius: "8px" }}>{companyName}</span>}
           </h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+          <div className="grid dashboard-stats-grid">
             {[
               { label: "Revenue", value: fins.revenue || fins.Revenue || "—", color: "#fdf2f8" },
               { label: "Profit", value: fins.profit || fins.Profit || "—", color: "#f0f9ff" },
@@ -300,16 +369,14 @@ function DashboardPage({ results, companyName, onGoAnalysis }) {
             ].map(item => (
               <div key={item.label} style={{ background: item.color, padding: "20px", borderRadius: "16px" }}>
                 <div style={{ fontSize: "11px", fontWeight: "700", opacity: 0.6, textTransform: "uppercase", marginBottom: "4px" }}>{item.label}</div>
-                <div style={{ fontSize: "20px", fontWeight: "900" }}>{item.value === "null" ? "—" : item.value}</div>
+                <div style={{ fontSize: "18px", fontWeight: "900" }}>{item.value === "null" ? "—" : item.value}</div>
               </div>
             ))}
           </div>
         </Card>
       </div>
 
-      {/* Row 2: Risk Signals */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "24px" }}>
-        {/* Red Flags */}
+      <div className="grid dashboard-risk-grid" style={{ marginBottom: "24px" }}>
         <Card>
           <h3 style={{ fontSize: "18px", fontWeight: "800", marginBottom: "20px", color: "#ef4444" }}>⚠ Red Flags</h3>
           {score?.red_flags?.length > 0 ? (
@@ -326,7 +393,6 @@ function DashboardPage({ results, companyName, onGoAnalysis }) {
           )}
         </Card>
 
-        {/* Positive Signals */}
         <Card>
           <h3 style={{ fontSize: "18px", fontWeight: "800", marginBottom: "20px", color: "#22c55e" }}>✓ Positive Signals</h3>
           {score?.positive_signals?.length > 0 ? (
@@ -344,7 +410,6 @@ function DashboardPage({ results, companyName, onGoAnalysis }) {
         </Card>
       </div>
 
-      {/* Row 3: Web Research */}
       <Card>
         <h3 style={{ fontSize: "18px", fontWeight: "800", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
           <Icons.Research /> Web Intelligence Report
@@ -357,7 +422,6 @@ function DashboardPage({ results, companyName, onGoAnalysis }) {
         </h3>
         {research ? (
           <div>
-            {/* Key Findings */}
             {parsed.findings.length > 0 && (
               <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: "14px", padding: "20px", marginBottom: "16px" }}>
                 <h4 style={{ fontSize: "14px", fontWeight: "800", color: "#92400e", marginBottom: "12px" }}>🔎 Key Findings</h4>
@@ -369,14 +433,10 @@ function DashboardPage({ results, companyName, onGoAnalysis }) {
                 ))}
               </div>
             )}
-
-            {/* Summary */}
             <div style={{ background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: "14px", padding: "20px", marginBottom: "16px" }}>
               <h4 style={{ fontSize: "14px", fontWeight: "800", color: COLORS.text, marginBottom: "10px" }}>📋 Summary</h4>
               <p style={{ fontSize: "14px", color: COLORS.subtext, lineHeight: 1.7 }}>{parsed.summary}</p>
             </div>
-
-            {/* Sources */}
             <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: "10px", padding: "14px", display: "flex", alignItems: "center", gap: "10px" }}>
               <span style={{ fontSize: "16px" }}>🔍</span>
               <span style={{ fontSize: "13px", fontWeight: "700", color: "#0369a1" }}>{research.sources?.length || 0} external sources analysed</span>
@@ -402,16 +462,13 @@ function Step1Upload({ file, setFile, onNext, loading, result }) {
         </div>
         <h2 style={{ fontSize: "32px", fontWeight: "900", marginBottom: "12px" }}>Upload Financials</h2>
         <p style={{ color: COLORS.subtext, marginBottom: "40px" }}>We support Annual Reports, Balance Sheets, and Bank Statements.</p>
-
-        <label style={{ display: "block", border: `2px dashed ${COLORS.border}`, borderRadius: "24px", padding: "60px", cursor: "pointer", transition: "all 0.3s", background: file ? "#fdf2f8" : "transparent" }}>
+        <label style={{ display: "block", border: `2px dashed ${COLORS.border}`, borderRadius: "24px", padding: "40px", cursor: "pointer", transition: "all 0.3s", background: file ? "#fdf2f8" : "transparent" }}>
           <input type="file" accept=".pdf" onChange={e => setFile(e.target.files[0])} style={{ display: "none" }} />
           <div style={{ fontSize: "48px", marginBottom: "16px" }}>{file ? "📃" : "📁"}</div>
           <div style={{ fontSize: "18px", fontWeight: "800" }}>{file ? file.name : "Choose PDF or drag it here"}</div>
           <p style={{ fontSize: "14px", color: COLORS.subtext, marginTop: "8px" }}>Max file size 8MB</p>
         </label>
-
         {result && <div style={{ marginTop: "24px", color: "#10b981", fontWeight: "700" }}>Successfully extracted {result.characters_extracted} characters!</div>}
-
         <div style={{ marginTop: "40px" }}>
           <PrimaryBtn onClick={onNext} disabled={!file || loading} loading={loading} style={{ margin: "0 auto" }}>
             {loading ? "Processing..." : result ? "Continue →" : "Upload Document"}
@@ -431,22 +488,19 @@ function Step2Analyze({ companyName, setCompanyName, onNext, loading, result }) 
         </div>
         <h2 style={{ fontSize: "32px", fontWeight: "900", marginBottom: "12px" }}>Who are we analyzing?</h2>
         <p style={{ color: COLORS.subtext, marginBottom: "40px" }}>Our AI will cross-reference the financials with the company name.</p>
-
-         <input type="text" placeholder="Enter Company Name (e.g. Tata Motors)" value={companyName}
+         <input type="text" placeholder="Enter Company Name" value={companyName}
           onChange={e => setCompanyName(e.target.value)}
           style={{ width: "100%", padding: "20px 24px", border: `1px solid ${COLORS.border}`, borderRadius: "16px", fontSize: "18px", fontWeight: "600", marginBottom: "32px", textAlign: "center" }} />
-
         {result && (
-           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "32px" }}>
+           <div className="grid dashboard-stats-grid" style={{ marginBottom: "32px" }}>
              {Object.entries(result.financials).map(([k, v]) => (
-               <div key={k} style={{ padding: "12px", background: COLORS.bg, borderRadius: "12px" }}>
-                 <div style={{ fontSize: "10px", fontWeight: "800", opacity: 0.5, textTransform: "uppercase" }}>{k}</div>
+               <div key={k} style={{ padding: "16px", background: COLORS.bg, borderRadius: "12px" }}>
+                 <div style={{ fontSize: "10px", fontWeight: "800", opacity: 0.5, textTransform: "uppercase", marginBottom: "4px" }}>{k}</div>
                  <div style={{ fontSize: "16px", fontWeight: "900" }}>{v === "null" ? "—" : v}</div>
                </div>
              ))}
            </div>
         )}
-
         <PrimaryBtn onClick={onNext} disabled={!companyName || loading} loading={loading} style={{ margin: "0 auto" }}>
           {loading ? "Analyzing..." : result ? "Continue →" : "Start Analysis"}
         </PrimaryBtn>
@@ -458,8 +512,7 @@ function Step2Analyze({ companyName, setCompanyName, onNext, loading, result }) 
 function Step3Score({ onNext, loading, result }) {
   const scoreRef = useRef(null);
   useEffect(() => {
-    if (result && scoreRef.current)
-      gsap.fromTo(scoreRef.current, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" });
+    if (result && scoreRef.current) gsap.fromTo(scoreRef.current, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" });
   }, [result]);
   return (
     <AnimatedPage>
@@ -468,8 +521,7 @@ function Step3Score({ onNext, loading, result }) {
           <Icons.Score />
         </div>
         <h2 style={{ fontSize: "32px", fontWeight: "900", marginBottom: "12px" }}>Appraisal Engine</h2>
-        <p style={{ color: COLORS.subtext, marginBottom: "40px" }}>Scores the company across the 5 Cs of Credit — Character, Capacity, Capital, Collateral, Conditions.</p>
-
+        <p style={{ color: COLORS.subtext, marginBottom: "40px" }}>Scores the company across the 5 Cs of Credit.</p>
         {!result && (
           <>
             <div style={{ height: "150px", display: "flex", alignItems: "center", justifyContent: "center", background: COLORS.bg, borderRadius: "24px", marginBottom: "40px" }}>
@@ -480,30 +532,25 @@ function Step3Score({ onNext, loading, result }) {
             </PrimaryBtn>
           </>
         )}
-
         {result && (
           <div ref={scoreRef} style={{ textAlign: "left" }}>
-            {/* Score + Decision Row */}
             <div style={{ display: "flex", alignItems: "center", gap: "32px", background: COLORS.bg, borderRadius: "20px", padding: "36px", marginBottom: "20px" }}>
               <div style={{ textAlign: "center", paddingRight: "32px", borderRight: `1px solid ${COLORS.border}` }}>
-                <div style={{ fontSize: "72px", fontWeight: "900", lineHeight: 1, color: COLORS.text, letterSpacing: "-3px" }}>{result.score}</div>
+                <div style={{ fontSize: "64px", fontWeight: "900", lineHeight: 1, color: COLORS.text, letterSpacing: "-3px" }}>{result.score}</div>
                 <div style={{ fontSize: "14px", color: COLORS.subtext, marginTop: "6px" }}>out of 100</div>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: "28px", fontWeight: "900", color: decisionColor(result.decision), letterSpacing: "-1px", marginBottom: "16px" }}>{result.decision}</div>
+                <div style={{ fontSize: "24px", fontWeight: "900", color: decisionColor(result.decision), marginBottom: "16px" }}>{result.decision}</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                   <div style={{ padding: "8px 16px", background: "#fff", border: `1px solid ${COLORS.border}`, borderRadius: "8px", fontSize: "14px", fontWeight: "600" }}>Grade: {result.grade}</div>
                   <div style={{ padding: "8px 16px", background: "#fff", border: `1px solid ${COLORS.border}`, borderRadius: "8px", fontSize: "14px", fontWeight: "600" }}>{result.interest_rate}</div>
-                  <div style={{ padding: "8px 16px", background: "#fdf2f8", border: "1px solid #fbcfe8", borderRadius: "8px", fontSize: "14px", color: COLORS.primary, fontWeight: "700" }}>₹{result.suggested_loan_limit_crore} Cr limit</div>
                 </div>
               </div>
             </div>
-
-            {/* Red Flags + Positive Signals */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px", marginBottom: "28px" }}>
               {result.red_flags?.length > 0 && (
                 <div style={{ background: "#fff5f5", border: "1px solid #fee2e2", borderRadius: "16px", padding: "24px" }}>
-                  <div style={{ fontWeight: "800", color: "#ef4444", marginBottom: "14px", fontSize: "16px" }}>⚠ Red Flags</div>
+                  <div style={{ fontWeight: "800", color: "#ef4444", marginBottom: "14px" }}>⚠ Red Flags</div>
                   {result.red_flags.map((f, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "10px" }}>
                       <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#ef4444", marginTop: "7px", flexShrink: 0 }} />
@@ -514,7 +561,7 @@ function Step3Score({ onNext, loading, result }) {
               )}
               {result.positive_signals?.length > 0 && (
                 <div style={{ background: "#f0fdf4", border: "1px solid #dcfce7", borderRadius: "16px", padding: "24px" }}>
-                  <div style={{ fontWeight: "800", color: "#22c55e", marginBottom: "14px", fontSize: "16px" }}>✓ Positive Signals</div>
+                  <div style={{ fontWeight: "800", color: "#22c55e", marginBottom: "14px" }}>✓ Positive Signals</div>
                   {result.positive_signals.map((f, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "10px" }}>
                       <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#22c55e", marginTop: "7px", flexShrink: 0 }} />
@@ -524,7 +571,6 @@ function Step3Score({ onNext, loading, result }) {
                 </div>
               )}
             </div>
-
             <PrimaryBtn onClick={onNext} style={{ margin: "0 auto" }}>Continue →</PrimaryBtn>
           </div>
         )}
@@ -534,7 +580,6 @@ function Step3Score({ onNext, loading, result }) {
 }
 
 function Step4Research({ onNext, loading, result }) {
-  /* Parse the summary into structured sections */
   const parseSummary = (text) => {
     if (!text) return { riskLevel: "", findings: [], summary: "" };
     const riskMatch = text.match(/RISK LEVEL:\s*(\w+)/i);
@@ -558,8 +603,7 @@ function Step4Research({ onNext, loading, result }) {
           <Icons.Research />
         </div>
         <h2 style={{ fontSize: "32px", fontWeight: "900", marginBottom: "12px" }}>Web Research</h2>
-        <p style={{ color: COLORS.subtext, marginBottom: "40px" }}>AI agent scans news, NCLT filings, court records and regulatory alerts in real-time.</p>
-
+        <p style={{ color: COLORS.subtext, marginBottom: "40px" }}>AI agent scans news and filings in real-time.</p>
         {!result && (
           <>
             <div style={{ height: "150px", display: "flex", alignItems: "center", justifyContent: "center", background: COLORS.bg, borderRadius: "24px", marginBottom: "40px" }}>
@@ -570,16 +614,12 @@ function Step4Research({ onNext, loading, result }) {
             </PrimaryBtn>
           </>
         )}
-
         {result && (
           <div style={{ textAlign: "left" }}>
-            {/* Risk Level Badge */}
             <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 20px", borderRadius: "100px", fontWeight: "700", fontSize: "14px", color: riskColor(parsed.riskLevel || result.risk_level), background: `${riskColor(parsed.riskLevel || result.risk_level)}12`, border: `1px solid ${riskColor(parsed.riskLevel || result.risk_level)}30`, marginBottom: "24px" }}>
               <span style={{ width: "8px", height: "8px", background: riskColor(parsed.riskLevel || result.risk_level), borderRadius: "50%", display: "inline-block" }} />
               Risk Level: {parsed.riskLevel || result.risk_level}
             </div>
-
-            {/* Key Findings */}
             {parsed.findings.length > 0 && (
               <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: "16px", padding: "24px", marginBottom: "20px" }}>
                 <h4 style={{ fontSize: "16px", fontWeight: "800", color: "#92400e", marginBottom: "16px" }}>🔎 Key Findings</h4>
@@ -591,19 +631,14 @@ function Step4Research({ onNext, loading, result }) {
                 ))}
               </div>
             )}
-
-            {/* Summary */}
             <div style={{ background: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: "16px", padding: "24px", marginBottom: "20px" }}>
               <h4 style={{ fontSize: "16px", fontWeight: "800", color: COLORS.text, marginBottom: "12px" }}>📋 Summary</h4>
               <p style={{ fontSize: "15px", color: COLORS.subtext, lineHeight: 1.8 }}>{parsed.summary}</p>
             </div>
-
-            {/* Sources */}
             <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: "12px", padding: "16px", marginBottom: "28px", display: "flex", alignItems: "center", gap: "10px" }}>
               <span style={{ fontSize: "18px" }}>🔍</span>
               <span style={{ fontSize: "14px", fontWeight: "700", color: "#0369a1" }}>{result.sources?.length || 0} external sources analysed</span>
             </div>
-
             <PrimaryBtn onClick={onNext} style={{ margin: "0 auto" }}>Continue →</PrimaryBtn>
           </div>
         )}
@@ -621,7 +656,6 @@ function Step5Report({ onDownload, loading, companyName }) {
         </div>
         <h2 style={{ fontSize: "32px", fontWeight: "900", marginBottom: "12px" }}>Ready for Export</h2>
         <p style={{ color: COLORS.subtext, marginBottom: "40px" }}>Download your Professional Credit Appraisal Memo.</p>
-
         <Card style={{ marginBottom: "40px", display: "flex", gap: "20px", alignItems: "center", textAlign: "left" }}>
           <div style={{ fontSize: "40px" }}>📄</div>
           <div>
@@ -629,7 +663,6 @@ function Step5Report({ onDownload, loading, companyName }) {
             <div style={{ fontSize: "12px", color: COLORS.subtext }}>Word Document · Appraisal Memo</div>
           </div>
         </Card>
-
         <PrimaryBtn onClick={onDownload} disabled={loading} loading={loading} style={{ margin: "0 auto" }}>
           {loading ? "Generating..." : "Download Memo"}
         </PrimaryBtn>
@@ -638,9 +671,6 @@ function Step5Report({ onDownload, loading, companyName }) {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ROOT APP
-═══════════════════════════════════════════════════════════════ */
 export default function App() {
   const [page, setPage] = useState("home");
   const [appTab, setAppTab] = useState("analysis");
@@ -650,6 +680,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [results, setResults] = useState({});
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const post = async (url, data) => {
     setError(""); setLoading(true);
@@ -709,16 +740,15 @@ export default function App() {
     ];
 
     return (
-      <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-        {/* Step Progress */}
-        <div style={{ display: "flex", gap: "10px", marginBottom: "40px", justifyContent: "center" }}>
+      <div style={{ maxWidth: "800px", margin: "0 auto", width: "100%" }}>
+        <div style={{ display: "flex", gap: "10px", marginBottom: "40px", justifyContent: "center", padding: "0 20px" }}>
           {[0,1,2,3,4].map(i => (
-            <div key={i} style={{ width: "40px", height: "6px", borderRadius: "10px", background: i <= step ? COLORS.primary : COLORS.border, transition: "all 0.3s" }} />
+            <div key={i} style={{ flex: 1, maxWidth: "40px", height: "6px", borderRadius: "10px", background: i <= step ? COLORS.primary : COLORS.border, transition: "all 0.3s" }} />
           ))}
         </div>
-        <Card>
+        <Card style={{ padding: "24px" }}>
           {step > 0 && (
-            <button onClick={() => setStep(step - 1)} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: COLORS.subtext, cursor: "pointer", fontSize: "14px", fontWeight: "700", marginBottom: "24px", padding: 0 }}>
+            <button onClick={() => setStep(step - 1)} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: COLORS.subtext, cursor: "pointer", fontSize: "14px", fontWeight: "700", marginBottom: "24px" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
               Back to Step {step}
             </button>
@@ -729,30 +759,89 @@ export default function App() {
     );
   };
 
+  const NavLink = ({ label, onClick, active }) => (
+    <div 
+      onClick={() => { onClick(); setMenuOpen(false); }}
+      style={{
+        fontSize: "32px",
+        fontWeight: "800",
+        color: active ? COLORS.primary : COLORS.text,
+        cursor: "pointer",
+        padding: "20px 0",
+        transition: "all 0.3s ease",
+        textAlign: "center"
+      }}
+      onMouseEnter={e => e.currentTarget.style.color = COLORS.primary}
+      onMouseLeave={e => e.currentTarget.style.color = active ? COLORS.primary : COLORS.text}
+    >
+      {label}
+    </div>
+  );
+
   return (
     <>
       <style>{GLOBAL_CSS}</style>
       <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-        {/* Navbar */}
-        <nav style={{ padding: "24px 48px", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff", borderBottom: `1px solid ${COLORS.border}`, position: "sticky", top: 0, zIndex: 100 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" }} onClick={() => setPage("home")}>
-             <div style={{ width: "40px", height: "40px", background: COLORS.primary, borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: "900", fontSize: "20px" }}>C</div>
-             <span style={{ fontSize: "24px", fontWeight: "900" }}>Credly</span>
+        {/* Responsive Navbar */}
+        <header className="navbar-header">
+          <div className="nav-logo" onClick={() => { setPage("home"); setMenuOpen(false); }}>
+             <div className="logo-icon">C</div>
+             <span className="logo-text">Credly</span>
           </div>
 
-          <div style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-            <span style={{ fontWeight: "700", cursor: "pointer", color: page === "home" ? COLORS.primary : COLORS.text }} onClick={() => setPage("home")}>Home</span>
-            <div style={{ display: "flex", gap: "12px" }}>
-              <PrimaryBtn secondary onClick={() => { setPage("app"); setAppTab("dashboard"); }} style={{ padding: "10px 24px", fontSize: "14px" }}>Dashboard</PrimaryBtn>
-              <PrimaryBtn onClick={() => { setPage("app"); setAppTab("analysis"); }} style={{ padding: "10px 24px", fontSize: "14px" }}>Analysis</PrimaryBtn>
-            </div>
-          </div>
-        </nav>
+          {/* Desktop Links */}
+          <nav className="desktop-nav">
+            <span className={`nav-item ${page === "home" ? "active" : ""}`} onClick={() => setPage("home")}>Home</span>
+            <span className={`nav-item ${page === "app" && appTab === "dashboard" ? "active" : ""}`} onClick={() => { setPage("app"); setAppTab("dashboard"); }}>Dashboard</span>
+            <span className={`nav-item ${page === "app" && appTab === "analysis" ? "active" : ""}`} onClick={() => { setPage("app"); setAppTab("analysis"); }}>Analysis</span>
+          </nav>
 
-        {/* Content */}
-        <main style={{ flex: 1, padding: page === "home" ? 0 : "60px 24px" }}>
+          {/* Mobile Toggle */}
+          <button className="mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            )}
+          </button>
+        </header>
+
+        {/* 50vh Dropdown Menu (Only shown when mobile-toggle is present) */}
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: menuOpen ? "50vh" : "0",
+          background: "rgba(255, 255, 255, 0.98)",
+          backdropFilter: "blur(20px)",
+          zIndex: 900,
+          overflow: "hidden",
+          transition: "height 0.6s cubic-bezier(0.85, 0, 0.15, 1)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          borderBottom: menuOpen ? `1px solid ${COLORS.border}` : "none",
+          boxShadow: menuOpen ? "0 40px 100px rgba(0,0,0,0.1)" : "none"
+        }}>
+          <div style={{ 
+            opacity: menuOpen ? 1 : 0, 
+            transform: menuOpen ? "translateY(0)" : "translateY(-20px)",
+            transition: "all 0.5s ease 0.3s",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px"
+          }}>
+            <NavLink label="Home" onClick={() => setPage("home")} active={page === "home"} />
+            <NavLink label="Dashboard" onClick={() => { setPage("app"); setAppTab("dashboard"); }} active={page === "app" && appTab === "dashboard"} />
+            <NavLink label="Analysis" onClick={() => { setPage("app"); setAppTab("analysis"); }} active={page === "app" && appTab === "analysis"} />
+          </div>
+        </div>
+
+        <main style={{ flex: 1, padding: page === "home" ? 0 : "40px 24px" }}>
           {renderContent()}
-          {error && <div style={{ textAlign: "center", marginTop: "40px", color: "#ef4444", fontWeight: "600" }}>⚠ {error}</div>}
+          {error && <div style={{ textAlign: "center", marginTop: "40px", color: "#ef4444", fontWeight: "600", padding: "0 20px" }}>⚠ {error}</div>}
         </main>
       </div>
     </>
