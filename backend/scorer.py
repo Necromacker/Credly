@@ -99,9 +99,9 @@ def calculate_score(financials: dict, summary: str) -> dict:
     # Suggested loan amount = 2x annual profit or 30% of revenue (whichever is lower)
     try:
         suggested_limit = min(profit * 2, revenue * 0.3)
-        suggested_limit = max(0, round(suggested_limit, 2))
+        suggested_limit = max(0.0, round(float(suggested_limit), 2))
     except Exception:
-        suggested_limit = 0
+        suggested_limit = 0.0
 
     return {
         "score": score,

@@ -107,7 +107,7 @@ async def analyze(officer_notes: str = Form(None)):
         analysis_text += f"\n\n--- OFFICER NOTES ---\n{officer_notes}"
 
     summary = summarize_document(analysis_text, company_name)
-    financials = extract_financials(app.state.extracted_text)
+    financials = extract_financials(app.state.extracted_text, company_name)
 
     app.state.summary = summary["analysis"]
     app.state.financials = financials

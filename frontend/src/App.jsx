@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { gsap } from "gsap";
 
-const API = "http://localhost:8000";
+const API = "https://credly-kvmu.onrender.com";
 
 /* ─── helpers ───────────────────────────────────────────────── */
 const decisionColor = d =>
@@ -454,6 +454,9 @@ function DashboardPage({ results, companyName, onGoAnalysis }) {
    STEP COMPONENTS
 ═══════════════════════════════════════════════════════════════ */
 function Step1Upload({ file, setFile, onNext, loading, result }) {
+  const [gstFile, setGstFile] = useState(null);
+  const [bankFile, setBankFile] = useState(null);
+
   return (
     <AnimatedPage>
       <div style={{ textAlign: "center" }}>
@@ -462,12 +465,27 @@ function Step1Upload({ file, setFile, onNext, loading, result }) {
         </div>
         <h2 style={{ fontSize: "32px", fontWeight: "900", marginBottom: "12px" }}>Upload Financials</h2>
         <p style={{ color: COLORS.subtext, marginBottom: "40px" }}>We support Annual Reports, Balance Sheets, and Bank Statements.</p>
+
         <label style={{ display: "block", border: `2px dashed ${COLORS.border}`, borderRadius: "24px", padding: "40px", cursor: "pointer", transition: "all 0.3s", background: file ? "#fdf2f8" : "transparent" }}>
           <input type="file" accept=".pdf" onChange={e => setFile(e.target.files[0])} style={{ display: "none" }} />
           <div style={{ fontSize: "48px", marginBottom: "16px" }}>{file ? "📃" : "📁"}</div>
           <div style={{ fontSize: "18px", fontWeight: "800" }}>{file ? file.name : "Choose PDF or drag it here"}</div>
           <p style={{ fontSize: "14px", color: COLORS.subtext, marginTop: "8px" }}>Max file size 20MB</p>
         </label>
+
+        <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
+          <label style={{ flex: 1, display: "block", border: `2px dashed ${COLORS.border}`, borderRadius: "20px", padding: "24px", cursor: "pointer", transition: "all 0.3s", background: gstFile ? "#fdf2f8" : "transparent" }}>
+            <input type="file" accept=".pdf" onChange={e => setGstFile(e.target.files[0])} style={{ display: "none" }} />
+            <div style={{ fontSize: "24px", marginBottom: "8px" }}>{gstFile ? "📃" : "📄"}</div>
+            <div style={{ fontSize: "14px", fontWeight: "700" }}>{gstFile ? gstFile.name : "Upload GST Filing"}</div>
+          </label>
+          <label style={{ flex: 1, display: "block", border: `2px dashed ${COLORS.border}`, borderRadius: "20px", padding: "24px", cursor: "pointer", transition: "all 0.3s", background: bankFile ? "#fdf2f8" : "transparent" }}>
+            <input type="file" accept=".pdf" onChange={e => setBankFile(e.target.files[0])} style={{ display: "none" }} />
+            <div style={{ fontSize: "24px", marginBottom: "8px" }}>{bankFile ? "📃" : "🏦"}</div>
+            <div style={{ fontSize: "14px", fontWeight: "700" }}>{bankFile ? bankFile.name : "Upload Bank Statement"}</div>
+          </label>
+        </div>
+
         {result && <div style={{ marginTop: "24px", color: "#10b981", fontWeight: "700" }}>Successfully extracted {result.characters_extracted} characters!</div>}
         <div style={{ marginTop: "40px" }}>
           <PrimaryBtn onClick={onNext} disabled={!file || loading} loading={loading} style={{ margin: "0 auto" }}>
