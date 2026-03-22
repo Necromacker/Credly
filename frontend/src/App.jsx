@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { gsap } from "gsap";
 
-const API = "https://credly-kvmu.onrender.com";
+const API = "http://localhost:8000";
 
 /* ─── helpers ───────────────────────────────────────────────── */
 const decisionColor = d =>
