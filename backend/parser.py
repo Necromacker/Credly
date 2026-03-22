@@ -22,8 +22,16 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
                 text += page_text + "\n"
             else:
                 # Scanned page — use OCR
-                img = page.to_image(resolution=150).original  # lowered from 300 to save memory
-                ocr_text = pytesseract.image_to_string(img)
-                text += ocr_text + "\n"
+                try:
+                    img = page.to_image(resolution=150).original
+                    ocr_text = pytesseract.image_to_string(img)
+                    text += ocr_text + "\n"
+                except (pytesseract.TesseractNotFoundError, FileNotFoundError):
+                    # Tesseract not installed — can't do OCR — just skip
+                    print("OCR skipped: Tesseract not found in path.")
+                    text += "[OCR Skipped: Scanned page detected but Tesseract not installed]\n"
+                except Exception as e:
+                    print(f"OCR Error: {str(e)}")
+                    text += f"[OCR Error on page: {str(e)}]\n"
     
     return text.strip()

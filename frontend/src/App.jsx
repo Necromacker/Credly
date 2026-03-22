@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { gsap } from "gsap";
 
-const API = "https://credly-kvmu.onrender.com";
+const API = "http://localhost:8000";
 
 /* ─── helpers ───────────────────────────────────────────────── */
 const decisionColor = d =>
   d === "APPROVE" ? "#10b981"
-  : d?.includes("CONDITION") || d?.includes("REFER") ? "#f59e0b"
-  : "#ef4444";
+    : d?.includes("CONDITION") || d?.includes("REFER") ? "#f59e0b"
+      : "#ef4444";
 
 const riskColor = r =>
   ({ LOW: "#10b981", MEDIUM: "#f59e0b", HIGH: "#ef4444", CRITICAL: "#b91c1c" }[r] || "#a1a1aa");
@@ -115,27 +115,27 @@ const GLOBAL_CSS = `
 const Icons = {
   Upload: () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
     </svg>
   ),
   Analysis: () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+      <ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
     </svg>
   ),
   Score: () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+      <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
     </svg>
   ),
   Research: () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
   ),
   Report: () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" />
     </svg>
   )
 };
@@ -145,8 +145,8 @@ function Spinner() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ animation: "spin 0.8s linear infinite" }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-      <circle cx="12" cy="12" r="10" stroke="rgba(0,0,0,0.1)" strokeWidth="3"/>
-      <path d="M12 2a10 10 0 0 1 10 10" stroke={COLORS.primary} strokeWidth="3" strokeLinecap="round"/>
+      <circle cx="12" cy="12" r="10" stroke="rgba(0,0,0,0.1)" strokeWidth="3" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke={COLORS.primary} strokeWidth="3" strokeLinecap="round" />
     </svg>
   );
 }
@@ -208,9 +208,9 @@ function ScoreArc({ score }) {
   const color = score >= 80 ? "#10b981" : score >= 65 ? "#f59e0b" : score >= 50 ? "#f97316" : "#ef4444";
   return (
     <svg width="180" height="110" viewBox="0 0 180 110">
-      <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} fill="none" stroke="#f1f1f5" strokeWidth="12" strokeLinecap="round"/>
+      <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} fill="none" stroke="#f1f1f5" strokeWidth="12" strokeLinecap="round" />
       <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} fill="none" stroke={color} strokeWidth="12" strokeLinecap="round"
-        strokeDasharray={`${progress} ${circ}`} style={{ transition: "stroke-dasharray 1s ease-out" }}/>
+        strokeDasharray={`${progress} ${circ}`} style={{ transition: "stroke-dasharray 1s ease-out" }} />
       <text x={cx} y={cy - 10} textAnchor="middle" fill={COLORS.text} fontSize="32" fontWeight="800" fontFamily="Inter">{score}</text>
       <text x={cx} y={cy + 14} textAnchor="middle" fill={COLORS.subtext} fontSize="11" fontFamily="Inter">out of 100</text>
     </svg>
@@ -258,7 +258,7 @@ function HomePage({ onStart }) {
         </div>
         <div style={{ position: "relative", width: "100%" }}>
           <div style={{ width: "100%", height: "auto", minHeight: "350px", background: "linear-gradient(135deg, #fff, #fdf2f8)", borderRadius: "40px", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}>
-             <img src="/1.png" alt="Illustration" style={{ width: "100%", height: "auto", maxWidth: "500px", borderRadius: "20px" }} />
+            <img src="/1.png" alt="Illustration" style={{ width: "100%", height: "auto", maxWidth: "500px", borderRadius: "20px" }} />
           </div>
         </div>
       </section>
@@ -466,7 +466,7 @@ function Step1Upload({ file, setFile, onNext, loading, result }) {
           <input type="file" accept=".pdf" onChange={e => setFile(e.target.files[0])} style={{ display: "none" }} />
           <div style={{ fontSize: "48px", marginBottom: "16px" }}>{file ? "📃" : "📁"}</div>
           <div style={{ fontSize: "18px", fontWeight: "800" }}>{file ? file.name : "Choose PDF or drag it here"}</div>
-          <p style={{ fontSize: "14px", color: COLORS.subtext, marginTop: "8px" }}>Max file size 8MB</p>
+          <p style={{ fontSize: "14px", color: COLORS.subtext, marginTop: "8px" }}>Max file size 20MB</p>
         </label>
         {result && <div style={{ marginTop: "24px", color: "#10b981", fontWeight: "700" }}>Successfully extracted {result.characters_extracted} characters!</div>}
         <div style={{ marginTop: "40px" }}>
@@ -486,7 +486,7 @@ function Step2Analyze({ borrowerProfile, officerNotes, setOfficerNotes, onNext, 
         <div style={{ width: "80px", height: "80px", background: "#f0f9ff", borderRadius: "20px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 32px", color: "#0ea5e9" }}>
           <Icons.Analysis />
         </div>
-        
+
         <h2 style={{ fontSize: "32px", fontWeight: "900", marginBottom: "8px" }}>Borrower Detected</h2>
         <p style={{ color: COLORS.subtext, marginBottom: "32px" }}>We've automatically identified the entity from your documents.</p>
 
@@ -509,7 +509,7 @@ function Step2Analyze({ borrowerProfile, officerNotes, setOfficerNotes, onNext, 
                   <div style={{ fontSize: "16px", fontWeight: "700", color: COLORS.text }}>{borrowerProfile.sector}</div>
                 </div>
               )}
-               {borrowerProfile.location && (
+              {borrowerProfile.location && (
                 <div>
                   <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.subtext, textTransform: "uppercase" }}>Location</label>
                   <div style={{ fontSize: "16px", fontWeight: "700", color: COLORS.text }}>{borrowerProfile.location}</div>
@@ -520,22 +520,22 @@ function Step2Analyze({ borrowerProfile, officerNotes, setOfficerNotes, onNext, 
         )}
 
         <h3 style={{ fontSize: "20px", fontWeight: "800", marginBottom: "16px", textAlign: "left" }}>Add Officer Notes</h3>
-        <textarea 
-          placeholder="Enter site visit notes, management interaction, or primary insights here..." 
+        <textarea
+          placeholder="Enter site visit notes, management interaction, or primary insights here..."
           value={officerNotes}
           onChange={e => setOfficerNotes(e.target.value)}
-          style={{ 
-            width: "100%", 
-            padding: "20px 24px", 
-            border: `1px solid ${COLORS.border}`, 
-            borderRadius: "16px", 
-            fontSize: "16px", 
-            fontWeight: "500", 
-            marginBottom: "32px", 
+          style={{
+            width: "100%",
+            padding: "20px 24px",
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: "16px",
+            fontSize: "16px",
+            fontWeight: "500",
+            marginBottom: "32px",
             minHeight: "150px",
             fontFamily: "inherit",
             resize: "vertical"
-          }} 
+          }}
         />
 
         <PrimaryBtn onClick={onNext} disabled={loading} loading={loading} style={{ margin: "0 auto" }}>
@@ -745,7 +745,7 @@ export default function App() {
 
   const handleAnalyze = async () => {
     if (results.analyze) { setStep(2); return; }
-    const form = new FormData(); 
+    const form = new FormData();
     if (officerNotes) form.append("officer_notes", officerNotes);
     const data = await post("/analyze", form);
     if (data) {
@@ -791,14 +791,14 @@ export default function App() {
     return (
       <div style={{ maxWidth: "800px", margin: "0 auto", width: "100%" }}>
         <div style={{ display: "flex", gap: "10px", marginBottom: "40px", justifyContent: "center", padding: "0 20px" }}>
-          {[0,1,2,3,4].map(i => (
+          {[0, 1, 2, 3, 4].map(i => (
             <div key={i} style={{ flex: 1, maxWidth: "40px", height: "6px", borderRadius: "10px", background: i <= step ? COLORS.primary : COLORS.border, transition: "all 0.3s" }} />
           ))}
         </div>
         <Card style={{ padding: "24px" }}>
           {step > 0 && (
             <button onClick={() => setStep(step - 1)} style={{ display: "flex", alignItems: "center", gap: "8px", background: "none", border: "none", color: COLORS.subtext, cursor: "pointer", fontSize: "14px", fontWeight: "700", marginBottom: "24px" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
               Back to Step {step}
             </button>
           )}
@@ -809,7 +809,7 @@ export default function App() {
   };
 
   const NavLink = ({ label, onClick, active }) => (
-    <div 
+    <div
       onClick={() => { onClick(); setMenuOpen(false); }}
       style={{
         fontSize: "32px",
@@ -834,8 +834,8 @@ export default function App() {
         {/* Responsive Navbar */}
         <header className="navbar-header">
           <div className="nav-logo" onClick={() => { setPage("home"); setMenuOpen(false); }}>
-             <div className="logo-icon">C</div>
-             <span className="logo-text">Credly</span>
+            <div className="logo-icon">C</div>
+            <span className="logo-text">Credly</span>
           </div>
 
           {/* Desktop Links */}
@@ -874,8 +874,8 @@ export default function App() {
           borderBottom: menuOpen ? `1px solid ${COLORS.border}` : "none",
           boxShadow: menuOpen ? "0 40px 100px rgba(0,0,0,0.1)" : "none"
         }}>
-          <div style={{ 
-            opacity: menuOpen ? 1 : 0, 
+          <div style={{
+            opacity: menuOpen ? 1 : 0,
             transform: menuOpen ? "translateY(0)" : "translateY(-20px)",
             transition: "all 0.5s ease 0.3s",
             display: "flex",

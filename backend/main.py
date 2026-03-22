@@ -1,7 +1,7 @@
 from parser import extract_text_from_pdf
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 import uvicorn
 from dotenv import load_dotenv
 load_dotenv()
@@ -11,41 +11,37 @@ from researcher import research_company
 from report_generator import generate_cam_report
 from pathlib import Path
 import httpx
-import asyncio
-from contextlib import asynccontextmanager
 import os
 import gc  # garbage collector
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    asyncio.create_task(keep_alive())
-    yield
-    # Clean up state on shutdown
-    clear_state(app)
-
+# --- HELPER FUNCTIONS ---
 def clear_state(app):
     """Free all stored data from memory"""
+    import gc
     for attr in ["extracted_text", "company_name", "summary", "financials", "score_result", "research", "borrower_profile"]:
         if hasattr(app.state, attr):
             delattr(app.state, attr)
     gc.collect()
 
-async def keep_alive():
-    while True:
-        await asyncio.sleep(600)  # every 10 minutes — not 30 seconds
-        try:
-            async with httpx.AsyncClient(timeout=10) as client:
-                await client.get("https://credly-kvmu.onrender.com")
-        except:
-            pass
+app = FastAPI()
 
-app = FastAPI(lifespan=lifespan)
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"GLOBAL ERROR: {str(exc)}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "error": str(exc)},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_credentials=True,
 )
 
 @app.get("/")
@@ -59,9 +55,9 @@ async def upload_file(file: UploadFile = File(...)):
 
     file_bytes = await file.read()
 
-    # Reject files over 8MB
-    if len(file_bytes) > 8_000_000:
-        raise HTTPException(status_code=413, detail="File too large. Max 8MB.")
+    # Reject files over 20MB
+    if len(file_bytes) > 20_000_000:
+        raise HTTPException(status_code=413, detail="File too large. Max 20MB.")
 
     # Clear any previous session data before loading new one
     clear_state(app)
@@ -78,19 +74,18 @@ async def upload_file(file: UploadFile = File(...)):
     # AUTO-EXTRACT ENTITY (Engine 1 - Data Ingestor)
     try:
         profile = extract_borrower_profile(text)
+        
+        # Validate that a real company was found
+        if not profile.get("company_name") or profile["company_name"].lower() in ["unknown company", "null", "none"]:
+             raise HTTPException(status_code=400, detail="No company found. Please insert a valid document.")
+             
         app.state.borrower_profile = profile
         app.state.company_name = profile.get("company_name", "Unknown Company")
+    except HTTPException:
+        raise
     except Exception as e:
-        # Don't fail the whole upload if extraction fails, just inform the user
         print(f"Extraction error: {str(e)}")
-        profile = {
-            "company_name": "Unknown (Extraction Error)",
-            "cin": None,
-            "sector": None,
-            "error": str(e)
-        }
-        app.state.borrower_profile = profile
-        app.state.company_name = "Unknown Company"
+        raise HTTPException(status_code=400, detail="No company found. Please insert a valid document.")
 
     return {
         "filename": file.filename,

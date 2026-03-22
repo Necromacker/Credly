@@ -101,17 +101,6 @@ RETURN ONLY A JSON OBJECT with these keys (if not found use null):
 
     try:
         data = json.loads(response.choices[0].message.content)
-        # Fallback if company_name is missing
-        if not data.get("company_name"):
-             data["company_name"] = "Unknown Company"
         return data
     except Exception as e:
-        return {
-            "company_name": "Unknown Company",
-            "cin": None,
-            "pan": None,
-            "promoters": [],
-            "sector": None,
-            "location": None,
-            "doc_type": "Unknown"
-        }
+        return {}
