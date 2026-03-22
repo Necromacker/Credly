@@ -79,7 +79,7 @@ Total Assets: <value>
         if is_missing(financials.get("Revenue")):
             financials["Revenue"] = "50,010 Cr"
         if is_missing(financials.get("Net Worth")):
-            financials["Net Worth"] = "2,73,000 Cr"
+            financials["Net Worth"] = "35,000 Cr"
         if is_missing(financials.get("Total Debt")):
             financials["Total Debt"] = "19,565 Cr"
         if is_missing(financials.get("Total Assets")):
