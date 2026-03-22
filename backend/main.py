@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 import uvicorn
 from dotenv import load_dotenv
 load_dotenv()
-from llm import summarize_document, extract_financials
+from llm import summarize_document, extract_financials, extract_borrower_profile
 from scorer import calculate_score
 from researcher import research_company
 from report_generator import generate_cam_report
@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
 
 def clear_state(app):
     """Free all stored data from memory"""
-    for attr in ["extracted_text", "company_name", "summary", "financials", "score_result", "research"]:
+    for attr in ["extracted_text", "company_name", "summary", "financials", "score_result", "research", "borrower_profile"]:
         if hasattr(app.state, attr):
             delattr(app.state, attr)
     gc.collect()
@@ -42,9 +42,10 @@ async def keep_alive():
 app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "*"],
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 @app.get("/")
@@ -74,21 +75,45 @@ async def upload_file(file: UploadFile = File(...)):
     # Store only the text, not the raw PDF
     app.state.extracted_text = text
 
+    # AUTO-EXTRACT ENTITY (Engine 1 - Data Ingestor)
+    try:
+        profile = extract_borrower_profile(text)
+        app.state.borrower_profile = profile
+        app.state.company_name = profile.get("company_name", "Unknown Company")
+    except Exception as e:
+        # Don't fail the whole upload if extraction fails, just inform the user
+        print(f"Extraction error: {str(e)}")
+        profile = {
+            "company_name": "Unknown (Extraction Error)",
+            "cin": None,
+            "sector": None,
+            "error": str(e)
+        }
+        app.state.borrower_profile = profile
+        app.state.company_name = "Unknown Company"
+
     return {
         "filename": file.filename,
+        "borrower_profile": profile,
         "characters_extracted": len(text),
         "preview": text[:500]
     }
 
 @app.post("/analyze")
-async def analyze(company_name: str = Form(...)):
-    if not hasattr(app.state, "extracted_text"):
+async def analyze(officer_notes: str = Form(None)):
+    if not hasattr(app.state, "extracted_text") or not hasattr(app.state, "borrower_profile"):
         raise HTTPException(status_code=400, detail="No document uploaded yet. Upload a PDF first.")
 
-    summary = summarize_document(app.state.extracted_text, company_name)
+    company_name = app.state.company_name
+    
+    # Enrich the text with officer notes if provided
+    analysis_text = app.state.extracted_text
+    if officer_notes:
+        analysis_text += f"\n\n--- OFFICER NOTES ---\n{officer_notes}"
+
+    summary = summarize_document(analysis_text, company_name)
     financials = extract_financials(app.state.extracted_text)
 
-    app.state.company_name = company_name
     app.state.summary = summary["analysis"]
     app.state.financials = financials
 
@@ -98,6 +123,7 @@ async def analyze(company_name: str = Form(...)):
 
     return {
         "company": company_name,
+        "borrower_profile": app.state.borrower_profile,
         "analysis": summary["analysis"],
         "financials": financials,
         "tokens_used": summary["tokens_used"]

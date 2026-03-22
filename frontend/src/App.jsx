@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { gsap } from "gsap";
 
-const API = "https://credly-kvmu.onrender.com";
+const API = "http://localhost:8000"; // Point to local backend for development
 
 /* ─── helpers ───────────────────────────────────────────────── */
 const decisionColor = d =>
@@ -479,30 +479,67 @@ function Step1Upload({ file, setFile, onNext, loading, result }) {
   );
 }
 
-function Step2Analyze({ companyName, setCompanyName, onNext, loading, result }) {
+function Step2Analyze({ borrowerProfile, officerNotes, setOfficerNotes, onNext, loading, result }) {
   return (
     <AnimatedPage>
       <div style={{ textAlign: "center" }}>
         <div style={{ width: "80px", height: "80px", background: "#f0f9ff", borderRadius: "20px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 32px", color: "#0ea5e9" }}>
           <Icons.Analysis />
         </div>
-        <h2 style={{ fontSize: "32px", fontWeight: "900", marginBottom: "12px" }}>Who are we analyzing?</h2>
-        <p style={{ color: COLORS.subtext, marginBottom: "40px" }}>Our AI will cross-reference the financials with the company name.</p>
-         <input type="text" placeholder="Enter Company Name" value={companyName}
-          onChange={e => setCompanyName(e.target.value)}
-          style={{ width: "100%", padding: "20px 24px", border: `1px solid ${COLORS.border}`, borderRadius: "16px", fontSize: "18px", fontWeight: "600", marginBottom: "32px", textAlign: "center" }} />
-        {result && (
-           <div className="grid dashboard-stats-grid" style={{ marginBottom: "32px" }}>
-             {Object.entries(result.financials).map(([k, v]) => (
-               <div key={k} style={{ padding: "16px", background: COLORS.bg, borderRadius: "12px" }}>
-                 <div style={{ fontSize: "10px", fontWeight: "800", opacity: 0.5, textTransform: "uppercase", marginBottom: "4px" }}>{k}</div>
-                 <div style={{ fontSize: "16px", fontWeight: "900" }}>{v === "null" ? "—" : v}</div>
-               </div>
-             ))}
-           </div>
+        
+        <h2 style={{ fontSize: "32px", fontWeight: "900", marginBottom: "8px" }}>Borrower Detected</h2>
+        <p style={{ color: COLORS.subtext, marginBottom: "32px" }}>We've automatically identified the entity from your documents.</p>
+
+        {borrowerProfile && (
+          <Card style={{ textAlign: "left", marginBottom: "40px", background: "#f8fafc", border: `1px solid ${COLORS.primary}40` }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+              <div>
+                <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.subtext, textTransform: "uppercase" }}>Company Name</label>
+                <div style={{ fontSize: "18px", fontWeight: "800", color: COLORS.text }}>{borrowerProfile.company_name}</div>
+              </div>
+              {borrowerProfile.cin && (
+                <div>
+                  <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.subtext, textTransform: "uppercase" }}>CIN</label>
+                  <div style={{ fontSize: "16px", fontWeight: "700", color: COLORS.text }}>{borrowerProfile.cin}</div>
+                </div>
+              )}
+              {borrowerProfile.sector && (
+                <div>
+                  <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.subtext, textTransform: "uppercase" }}>Sector</label>
+                  <div style={{ fontSize: "16px", fontWeight: "700", color: COLORS.text }}>{borrowerProfile.sector}</div>
+                </div>
+              )}
+               {borrowerProfile.location && (
+                <div>
+                  <label style={{ fontSize: "10px", fontWeight: "800", color: COLORS.subtext, textTransform: "uppercase" }}>Location</label>
+                  <div style={{ fontSize: "16px", fontWeight: "700", color: COLORS.text }}>{borrowerProfile.location}</div>
+                </div>
+              )}
+            </div>
+          </Card>
         )}
-        <PrimaryBtn onClick={onNext} disabled={!companyName || loading} loading={loading} style={{ margin: "0 auto" }}>
-          {loading ? "Analyzing..." : result ? "Continue →" : "Start Analysis"}
+
+        <h3 style={{ fontSize: "20px", fontWeight: "800", marginBottom: "16px", textAlign: "left" }}>Add Officer Notes</h3>
+        <textarea 
+          placeholder="Enter site visit notes, management interaction, or primary insights here..." 
+          value={officerNotes}
+          onChange={e => setOfficerNotes(e.target.value)}
+          style={{ 
+            width: "100%", 
+            padding: "20px 24px", 
+            border: `1px solid ${COLORS.border}`, 
+            borderRadius: "16px", 
+            fontSize: "16px", 
+            fontWeight: "500", 
+            marginBottom: "32px", 
+            minHeight: "150px",
+            fontFamily: "inherit",
+            resize: "vertical"
+          }} 
+        />
+
+        <PrimaryBtn onClick={onNext} disabled={loading} loading={loading} style={{ margin: "0 auto" }}>
+          {loading ? "Analyzing Financials..." : result ? "Continue →" : "Start Full Analysis"}
         </PrimaryBtn>
       </div>
     </AnimatedPage>
@@ -677,9 +714,11 @@ export default function App() {
   const [step, setStep] = useState(0);
   const [file, setFile] = useState(null);
   const [companyName, setCompanyName] = useState("");
+  const [officerNotes, setOfficerNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [results, setResults] = useState({});
+  const [borrowerProfile, setBorrowerProfile] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const post = async (url, data) => {
@@ -694,15 +733,25 @@ export default function App() {
     if (!file) return;
     const form = new FormData(); form.append("file", file);
     const data = await post("/upload", form);
-    if (data) setResults(r => ({ ...r, upload: data }));
+    if (data) {
+      setResults(r => ({ ...r, upload: data }));
+      if (data.borrower_profile) {
+        setBorrowerProfile(data.borrower_profile);
+        setCompanyName(data.borrower_profile.company_name);
+      }
+      setStep(1);
+    }
   };
 
   const handleAnalyze = async () => {
     if (results.analyze) { setStep(2); return; }
-    if (!companyName.trim()) return;
-    const form = new FormData(); form.append("company_name", companyName);
+    const form = new FormData(); 
+    if (officerNotes) form.append("officer_notes", officerNotes);
     const data = await post("/analyze", form);
-    if (data) setResults(r => ({ ...r, analyze: data }));
+    if (data) {
+      setResults(r => ({ ...r, analyze: data }));
+      setStep(2);
+    }
   };
 
   const handleScore = async () => {
@@ -733,7 +782,7 @@ export default function App() {
 
     const steps = [
       <Step1Upload key={0} file={file} setFile={setFile} onNext={handleUpload} loading={loading} result={results.upload} />,
-      <Step2Analyze key={1} companyName={companyName} setCompanyName={setCompanyName} onNext={handleAnalyze} loading={loading} result={results.analyze} />,
+      <Step2Analyze key={1} borrowerProfile={borrowerProfile} officerNotes={officerNotes} setOfficerNotes={setOfficerNotes} onNext={handleAnalyze} loading={loading} result={results.analyze} />,
       <Step3Score key={2} onNext={handleScore} loading={loading} result={results.score} />,
       <Step4Research key={3} onNext={handleResearch} loading={loading} result={results.research} />,
       <Step5Report key={4} onDownload={handleDownload} loading={loading} companyName={companyName} />,

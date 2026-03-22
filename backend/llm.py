@@ -1,5 +1,6 @@
 from groq import Groq
 import os
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -69,3 +70,48 @@ Total Assets: <value>
             financials[key.strip()] = val.strip()
     
     return financials
+
+
+def extract_borrower_profile(text: str) -> dict:
+    prompt = f"""
+You are a data extractor for a credit risk platform. From the text below, identify and extract key company details.
+
+TEXT:
+{text[:5000]}
+
+RETURN ONLY A JSON OBJECT with these keys (if not found use null):
+{{
+  "company_name": "Full legal name",
+  "cin": "Corporate Identification Number",
+  "pan": "Permanent Account Number",
+  "promoters": ["Name 1", "Name 2"],
+  "sector": "e.g. Textiles, IT, Manufacturing",
+  "location": "City, State",
+  "doc_type": "The type of document this appears to be (e.g. Annual Report, GST Filing, Bank Statement)"
+}}
+"""
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.1,
+        # Ensure it returns valid JSON
+        response_format={ "type": "json_object" }
+    )
+
+    try:
+        data = json.loads(response.choices[0].message.content)
+        # Fallback if company_name is missing
+        if not data.get("company_name"):
+             data["company_name"] = "Unknown Company"
+        return data
+    except Exception as e:
+        return {
+            "company_name": "Unknown Company",
+            "cin": None,
+            "pan": None,
+            "promoters": [],
+            "sector": None,
+            "location": None,
+            "doc_type": "Unknown"
+        }
